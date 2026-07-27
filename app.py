@@ -2,68 +2,156 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# -------------------------------
+# Page Configuration
+# -------------------------------
+st.set_page_config(
+    page_title="Tech Mahindra Financial Dashboard",
+    page_icon="📊",
+    layout="wide"
+)
 
+# -------------------------------
+# Load Data
+# -------------------------------
 df = pd.read_csv("company_financials_clean.csv")
 comparison = pd.read_csv("comparison.csv")
 
+# -------------------------------
+# Dashboard Title
+# -------------------------------
+st.title("📊 Financial Performance Dashboard: Tech Mahindra")
 
-st.title("Financial Dashboard: Tech Mahindra")
+st.markdown("""
+Welcome to the **Tech Mahindra Financial Dashboard**.
 
+This dashboard provides an overview of the company's quarterly financial performance,
+including Sales, Net Profit, Operating Profit Margin (OPM), and Machine Learning model comparison.
+""")
 
-# KPI cards
-c1, c2, c3 = st.columns(3)
+st.divider()
 
-c1.metric("Sales", f"{df['Sales'].iloc[-1]:,.0f}")
-c2.metric("Net Profit", f"{df['Net profit'].iloc[-1]:,.0f}")
-c3.metric("OPM", f"{df['OPM'].iloc[-1]}%")
+# -------------------------------
+# KPI Section
+# -------------------------------
+st.subheader("📌 Key Performance Indicators (Latest Quarter)")
 
+col1, col2, col3 = st.columns(3)
 
-# Sales and Net Profit chart
+with col1:
+    st.metric(
+        "Latest Sales (₹ Cr)",
+        f"{df['Sales'].iloc[-1]:,.0f}"
+    )
 
-st.subheader("Sales and Net Profit Trend")
+with col2:
+    st.metric(
+        "Latest Net Profit (₹ Cr)",
+        f"{df['Net profit'].iloc[-1]:,.0f}"
+    )
 
-fig, ax = plt.subplots()
+with col3:
+    st.metric(
+        "Latest OPM (%)",
+        f"{df['OPM'].iloc[-1]}%"
+    )
 
-ax.plot(df["Period"], df["Sales"], marker="o", label="Sales")
-ax.plot(df["Period"], df["Net profit"], marker="o", label="Net Profit")
+st.divider()
 
-ax.legend()
-plt.xticks(rotation=45)
+# -------------------------------
+# Financial Analytics
+# -------------------------------
+st.subheader("📈 Financial Analytics & Trends")
 
-st.pyplot(fig)
+col1, col2 = st.columns(2)
 
+# Sales & Net Profit
+with col1:
 
+    fig, ax = plt.subplots(figsize=(7,4))
 
-# OPM chart
+    ax.plot(
+        df["Period"],
+        df["Sales"],
+        marker="o",
+        linewidth=2,
+        label="Sales"
+    )
 
-st.subheader("OPM Percentage")
+    ax.plot(
+        df["Period"],
+        df["Net profit"],
+        marker="o",
+        linewidth=2,
+        label="Net Profit"
+    )
 
-fig, ax = plt.subplots()
+    ax.set_title("Sales & Net Profit Trend")
+    ax.set_xlabel("Quarter")
+    ax.set_ylabel("₹ Crore")
+    ax.legend()
 
-ax.bar(df["Period"], df["OPM"])
+    plt.xticks(rotation=45)
 
-plt.xticks(rotation=45)
+    st.pyplot(fig)
 
-st.pyplot(fig)
+# OPM
+with col2:
 
+    fig, ax = plt.subplots(figsize=(7,4))
 
+    ax.bar(
+        df["Period"],
+        df["OPM"]
+    )
 
-# Net Profit box plot
+    ax.set_title("Operating Profit Margin (OPM)")
+    ax.set_xlabel("Quarter")
+    ax.set_ylabel("OPM (%)")
 
-st.subheader("Net Profit by Profit Trend")
+    plt.xticks(rotation=45)
 
-fig, ax = plt.subplots()
+    st.pyplot(fig)
 
-df.boxplot(column="Net profit", by="Profit_Trend", ax=ax)
+st.divider()
+
+# -------------------------------
+# Net Profit Analysis
+# -------------------------------
+st.subheader("📊 Net Profit Distribution")
+
+fig, ax = plt.subplots(figsize=(8,4))
+
+df.boxplot(
+    column="Net profit",
+    by="Profit_Trend",
+    ax=ax
+)
 
 plt.suptitle("")
+ax.set_title("Net Profit by Profit Trend")
+ax.set_xlabel("Profit Trend")
+ax.set_ylabel("Net Profit (₹ Cr)")
 
 st.pyplot(fig)
 
+st.divider()
 
+# -------------------------------
+# Model Comparison
+# -------------------------------
+st.subheader("🤖 Machine Learning Model Comparison")
 
-# Model comparison
+with st.expander("Click to View Model Performance"):
 
-st.subheader("Model Comparison")
+    st.dataframe(
+        comparison,
+        use_container_width=True
+    )
 
-st.dataframe(comparison)
+st.divider()
+
+# -------------------------------
+# Footer
+# -------------------------------
+st.caption("Developed by Khushboo | Tech Mahindra Financial Dashboard")
